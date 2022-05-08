@@ -3,7 +3,8 @@ function varargout = plotcmap(varargin)
 % another variable onto the colormap on the line.
 % Specifies LineStyle, Marker, and LineWidth in the same way as plot/plot3.
 % -------------------------------------------------------------------------
-% Syntax:
+% 
+%Syntax:
 %
 % plotcmap(X, Y, cmap, LineValue)
 % plotcmap(Y, cmap)
@@ -14,6 +15,7 @@ function varargout = plotcmap(varargin)
 % plotcmap(ax, __)
 % h = plotcmap(__)
 % -------------------------------------------------------------------------
+%
 % Description:
 %
 % plotcmap(X, Y, cmap, LineValue): plots a 2-D line using plot(X, Y) and
@@ -24,7 +26,7 @@ function varargout = plotcmap(varargin)
 %                                  vectors with same length.
 %                                  cmap can be one of the MATLAB predefined
 %                                  colormap names or an customized N X 3
-%                                  colormap matirx.
+%                                  colormap array.
 %                                  (list of predefined colormap names:
 %                                  parula, turbo, hsv, hot, cool, spring,
 %                                  summer, autumn, winter, gray, bone,
@@ -37,8 +39,8 @@ function varargout = plotcmap(varargin)
 %                       set of values ranges from 1 to length(X).
 %
 % plotcmap(__, LineSpec): plots a colormapped line with specified
-%                         LineStyle, Marker, and Color. Use of LineSpec is
-%                         the same as in plot or plot3.
+%                         LineStyle, Marker, and LineWidth. Use of LineSpec
+%                         is the same as in plot or plot3.
 %                         e.g., plotcmap(X, Y, cmap, LineValue, '--o')
 %                         plotcmap(X, Y, cmap, 'LineWidth', 2).
 %                         Note that plotcmap overwrites the line color
@@ -59,6 +61,7 @@ function varargout = plotcmap(varargin)
 %
 % h = plotcmap(__): returns an array of Line objects.
 % -------------------------------------------------------------------------
+%
 % Examples:
 %
 % plotcmap(X, Y, parula, LineValue, '--', 'LineWidth', 2):
@@ -74,20 +77,26 @@ function varargout = plotcmap(varargin)
 % plotcmap(ax1, Y, cmap, LineValue):
 %   plots a 2-D colormapped line on axis ax1 based on an implicit set of
 %   x-coordinate values ranges from 1 to length(Y) that maps the values of
-%   vector LineValue onto the customized N X 3 colormap matrix cmap.
+%   vector LineValue onto the customized N X 3 colormap array cmap.
 %
 % h = plotcmap(X, Y, Z, cool, LineValue, ':s', 'MatchMarkerFaceColor'):
 %   plots a 3-D colormapped line that maps the values of vector LineValue
 %   onto the predefined colormap cool with dotted line style and filled
 %   suqare marker, and returns the line handle to h.
-%
 % =========================================================================
+%
+% version 1.1.1
+%   - Fixed a bug that causes errors when plotting on target axes.
+%   - Minor updates in headline description.
+% Xiaowei He
+% 05/07/2022
+% -------------------------------------------------------------------------
 % version 1.1.0
 %   - Added support for using MATLAB predefined colormaps.
 %   - Updates in the headline description including a few examples.
 % Xiaowei He
 % 05/01/2022
-% =========================================================================
+% -------------------------------------------------------------------------
 % version 1.0.0
 % Xiaowei He
 % 04/24/2022
@@ -96,13 +105,13 @@ function varargout = plotcmap(varargin)
     % input and output argument check
     nargoutchk(0, 1)
     if nargin < 2
-        error('plotcmap(X, Y, Z, cmap, LineValue, LineSpecs): not enough input arguments, must specify at least Y vector and cmap matrix.')
+        error('plotcmap(X, Y, Z, cmap, LineValue, LineSpecs): not enough input arguments, must specify at least Y vector and cmap array.')
     else
         % axis handle switch
         axflag = false;
         if ishandle(varargin{1})
             if nargin < 3
-                error('plotcmap(ax, X, Y, Z, cmap, LineValue, LineSpecs): not enough input arguments, must specify at least Y vector and cmap matrix.')
+                error('plotcmap(ax, X, Y, Z, cmap, LineValue, LineSpecs): not enough input arguments, must specify at least Y vector and cmap array.')
             end
             axflag = true;
         end
@@ -205,6 +214,13 @@ function varargout = plotcmap(varargin)
     ic = round(vfrac*(size(cmap, 1) - 1)) + 1; % index in cmap corresonding to v(i)
 
     % plot
+    % determine plot axis
+    if axflag
+        ax = varargin{1};
+    else
+        ax = gca;
+    end
+
     holdflag = ishold; % current plot hold status
     hold on
     L = length(x);
@@ -212,7 +228,7 @@ function varargout = plotcmap(varargin)
     switch dflag
         case 2 % 2-D plot
             for i = 1 : L-1
-                h(i) = plot([x(i), x(i+1)], [y(i), y(i+1)], ...
+                h(i) = plot(ax, [x(i), x(i+1)], [y(i), y(i+1)], ...
                             LineSpec{:}, 'Color', cmap(ic(i), :));
                 if mmfcflag
                     set(h(i), 'MarkerFaceColor', cmap(ic(i), :))
@@ -220,7 +236,7 @@ function varargout = plotcmap(varargin)
             end
         case 3 % 3-D plot
             for i = 1 : L-1
-                h(i) = plot3([x(i), x(i+1)], [y(i), y(i+1)], [z(i), z(i+1)], ...
+                h(i) = plot3(ax, [x(i), x(i+1)], [y(i), y(i+1)], [z(i), z(i+1)], ...
                              LineSpec{:}, 'Color', cmap(ic(i), :));
                 if mmfcflag
                     set(h(i), 'MarkerFaceColor', cmap(ic(i), :))
@@ -235,7 +251,7 @@ function varargout = plotcmap(varargin)
         switch dflag
             case 2 % 2-D plot
                 for i = 1 : L
-                    h(i) = plot(x(i), y(i), ...
+                    h(i) = plot(ax, x(i), y(i), ...
                                 LineSpec{:}, 'Color', cmap(ic(i), :));
                     if mmfcflag
                         set(h(i), 'MarkerFaceColor', cmap(ic(i), :))
@@ -243,7 +259,7 @@ function varargout = plotcmap(varargin)
                 end
             case 3 % 3-D plot
                 for i = 1 : L
-                    h(i) = plot3(x(i), y(i), z(i), ...
+                    h(i) = plot3(ax, x(i), y(i), z(i), ...
                                 LineSpec{:}, 'Color', cmap(ic(i), :));
                     if mmfcflag
                         set(h(i), 'MarkerFaceColor', cmap(ic(i), :))
