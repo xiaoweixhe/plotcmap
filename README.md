@@ -26,6 +26,8 @@ plotcmap(ax, __)
 
 h = plotcmap(__)
 
+[h, cb] = plotcmap(__)
+
 -------------------------------------------------------------------------
 
 Description:
@@ -80,6 +82,11 @@ plotcmap(ax, __): displays the plot in the target axes. Specify the axes
 
 h = plotcmap(__): returns an array of Line objects.
 
+[h, cb] = plotcmap(__): h returns an array of Line objects. Displays
+                         the colorbar based on
+                         caxis([min(LineValue), max(LineValue)]), and cb
+                         returns the colorbar handle.
+
 -------------------------------------------------------------------------
 
 Examples:
@@ -109,9 +116,30 @@ h = plotcmap(X, Y, Z, cool, LineValue, ':s', 'MatchMarkerFaceColor'):
 
   plots a 3-D colormapped line that maps the values of vector LineValue
   onto the predefined colormap cool with dotted line style and filled
-  suqare marker, and returns the line handle to h.
+  suqare marker, and returns the line object array to h.
+  
+[h, cb] = plotcmap(X, Y, summer, LineValue):
 
+   plots a 2-D colormapped line that maps the values of vector LineValue
+   onto the predefined colormap summer, returns the line object array to
+   h, displays the colorbar, and returns the colorbar handle to cb.
+
+[~, ~] = plotcmap(X, Y, summer, LineValue):
+
+   plots a 2-D colormapped line that maps the values of vector LineValue
+   onto the predefined colormap summer and displays the colorbar.
+  
 =========================================================================
+
+version 1.2.0
+  - Added an output argument that displays the colorbar and returns the
+    colorbar handle. E.g., [~, cb] = plotcmap(__).
+
+Xiaowei he
+
+05/22/2022
+
+-------------------------------------------------------------------------
 
 version 1.1.1
   - Fixed a bug that causes errors when plotting on target axes.
