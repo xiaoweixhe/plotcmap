@@ -14,6 +14,7 @@ function varargout = plotcmap(varargin)
 % plotcmap(__, 'MatchMarkerFaceColor')
 % plotcmap(ax, __)
 % h = plotcmap(__)
+% [h, cb] = plotcmap(__)
 % -------------------------------------------------------------------------
 %
 % Description:
@@ -60,6 +61,11 @@ function varargout = plotcmap(varargin)
 %                   Same as plot or plot3.
 %
 % h = plotcmap(__): returns an array of Line objects.
+%
+% [h, cb] = plotcmap(__): h returns an array of Line objects. Displays
+%                         the colorbar based on
+%                         caxis([min(LineValue), max(LineValue)]), and cb
+%                         returns the colorbar handle.
 % -------------------------------------------------------------------------
 %
 % Examples:
@@ -82,9 +88,24 @@ function varargout = plotcmap(varargin)
 % h = plotcmap(X, Y, Z, cool, LineValue, ':s', 'MatchMarkerFaceColor'):
 %   plots a 3-D colormapped line that maps the values of vector LineValue
 %   onto the predefined colormap cool with dotted line style and filled
-%   suqare marker, and returns the line handle to h.
+%   suqare marker, and returns the line object array to h.
+%
+% [h, cb] = plotcmap(X, Y, summer, LineValue):
+%   plots a 2-D colormapped line that maps the values of vector LineValue
+%   onto the predefined colormap summer, returns the line object array to
+%   h, displays the colorbar, and returns the colorbar handle to cb.
+%
+% [~, ~] = plotcmap(X, Y, summer, LineValue):
+%   plots a 2-D colormapped line that maps the values of vector LineValue
+%   onto the predefined colormap summer and displays the colorbar.
 % =========================================================================
 %
+% version 1.2.0
+%   - Added an output argument that displays the colorbar and returns the
+%     colorbar handle. E.g., [~, cb] = plotcmap(__).
+% Xiaowei he
+% 05/22/2022
+% -------------------------------------------------------------------------
 % version 1.1.1
 %   - Fixed a bug that causes errors when plotting on target axes.
 %   - Minor updates in headline description.
@@ -103,7 +124,7 @@ function varargout = plotcmap(varargin)
 % =========================================================================
 
     % input and output argument check
-    nargoutchk(0, 1)
+    nargoutchk(0, 2)
     if nargin < 2
         error('plotcmap(X, Y, Z, cmap, LineValue, LineSpecs): not enough input arguments, must specify at least Y vector and cmap array.')
     else
@@ -275,5 +296,11 @@ function varargout = plotcmap(varargin)
     % output
     if nargout == 1
         varargout{1} = h;
+    elseif nargout == 2
+        colormap(ax, cmap)
+        caxis([min(v), max(v)])
+        cb = colorbar(ax);
+        varargout{1} = h;
+        varargout{2} = cb;
     end
 end
